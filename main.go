@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -21,16 +22,11 @@ type Config struct {
 
 const CONFIG_SAMPLE = `{"accounts": [{"name": "Sample", "secret": "oops"}]}`
 
-func createConfigDirectoryAndFile() error {
-	path := configdir.LocalConfig("otpgen")
-	err := os.Mkdir(path, 0644)
-	if err != nil && !os.IsExist(err) {
-		return err
-	}
+func createConfigSampleFile() error {
+	path := configdir.LocalConfig()
+	configPath := filepath.Join(path, "totpgen.json")
 
-	configPath := filepath.Join(path, "config.json")
-
-	err = os.WriteFile(configPath, []byte(CONFIG_SAMPLE), os.FileMode(os.O_CREATE))
+	err := os.WriteFile(configPath, []byte(CONFIG_SAMPLE), os.FileMode(0644))
 	if err != nil {
 		return err
 	}
@@ -39,25 +35,26 @@ func createConfigDirectoryAndFile() error {
 }
 
 func readConfig(path string) (*Config, error) {
+	_, err := os.Stat(path)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			err = createConfigSampleFile()
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+	}
+
 	fd, err := os.Open(path)
-	if err != nil && !os.IsNotExist(err) {
+	if err != nil {
 		return nil, err
 	}
 
-	if os.IsNotExist(err) {
-		err = createConfigDirectoryAndFile()
-		if err != nil {
-			return nil, err
-		}
-		fd, err = os.Open(path)
-		if err != nil && !os.IsNotExist(err) {
-			return nil, err
-		}
-	}
 	var cfg Config
 	err = json.NewDecoder(fd).Decode(&cfg)
 	if err != nil {
-		fmt.Println("inja3")
 		return nil, err
 	}
 
@@ -67,8 +64,8 @@ func readConfig(path string) (*Config, error) {
 // TODO:
 // Edit command to edit configuration in system editor
 func main() {
-	path := configdir.LocalConfig("otpgen")
-	configPath := filepath.Join(path, "config.json")
+	path := configdir.LocalConfig()
+	configPath := filepath.Join(path, "totpgen.json")
 	cfg, err := readConfig(configPath)
 	if err != nil {
 		panic(err)
