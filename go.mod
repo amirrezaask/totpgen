@@ -1,4 +1,4 @@
-module github.com/amirrezaask/ybm-go
+module github.com/amirrezaask/totpgen
 
 go 1.22.0
 
