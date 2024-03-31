@@ -16,11 +16,9 @@ type Account struct {
 	Name   string `json:"name"`
 	Secret string `json:"secret"`
 }
-type Config struct {
-	Accounts []Account `json:"accounts"`
-}
+type Config []Account
 
-const CONFIG_SAMPLE = `{"accounts": [{"name": "Sample", "secret": "oops"}]}`
+const CONFIG_SAMPLE = `[{"name": "Sample", "secret": "oops"}]`
 
 func createConfigSampleFile() error {
 	path := configdir.LocalConfig()
@@ -34,7 +32,7 @@ func createConfigSampleFile() error {
 	return nil
 }
 
-func readConfig(path string) (*Config, error) {
+func readConfig(path string) (Config, error) {
 	_, err := os.Stat(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -58,7 +56,7 @@ func readConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
-	return &cfg, nil
+	return cfg, nil
 }
 
 // TODO:
@@ -71,7 +69,7 @@ func main() {
 		panic(err)
 	}
 	t := time.Now()
-	for _, acc := range cfg.Accounts {
+	for _, acc := range cfg {
 		code, err := totp.GenerateCode(acc.Secret, t)
 		if err != nil {
 			panic(err)
