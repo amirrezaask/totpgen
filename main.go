@@ -64,6 +64,8 @@ func readConfig(path string) (*Config, error) {
 	return &cfg, nil
 }
 
+// TODO:
+// Edit command to edit configuration in system editor
 func main() {
 	path := configdir.LocalConfig("otpgen")
 	configPath := filepath.Join(path, "config.json")
