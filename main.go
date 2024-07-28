@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -82,6 +83,28 @@ func generateCmd() error {
 	return nil
 }
 
+func generateSingleCmd(name string) error {
+	path := configdir.LocalConfig()
+	configPath := filepath.Join(path, "totpgen.json")
+	cfg, err := readConfig(configPath)
+	if err != nil {
+		return err
+	}
+	t := time.Now()
+	for _, acc := range cfg {
+		re := regexp.MustCompile(name)
+		if re.Match([]byte(acc.Name)) {
+			code, err := totp.GenerateCode(acc.Secret, t)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("%s\n", code)
+		}
+	}
+
+	return nil
+}
+
 func getEditorExecCommand() *exec.Cmd {
 	EDITOR := os.Getenv("EDITOR")
 	VISUAL := os.Getenv("VISUAL")
@@ -139,6 +162,11 @@ func main() {
 		case "edit":
 			if err := editCmd(); err != nil {
 				panic(fmt.Sprintf("running edit cmd failed: %s", err.Error()))
+			}
+		default:
+			// case you want just one of the passwords
+			if err := generateSingleCmd(cmd); err != nil {
+				panic(fmt.Sprintf("running single generate failed: %s", err.Error()))
 			}
 		}
 	}
