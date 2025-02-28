@@ -27,7 +27,7 @@ const CONFIG_SAMPLE = `[{"name": "Sample", "secret": "oops"}]`
 
 func createConfigSampleFile() error {
 	path := configdir.LocalConfig()
-	configPath := filepath.Join(path, "totpgen.json")
+	configPath := filepath.Join(path, "2fa.json")
 
 	err := os.WriteFile(configPath, []byte(CONFIG_SAMPLE), os.FileMode(0644))
 	if err != nil {
@@ -66,7 +66,7 @@ func readConfig(path string) (Config, error) {
 
 func generateCmd() error {
 	path := configdir.LocalConfig()
-	configPath := filepath.Join(path, "totpgen.json")
+	configPath := filepath.Join(path, "2fa.json")
 	cfg, err := readConfig(configPath)
 	if err != nil {
 		return err
@@ -85,7 +85,7 @@ func generateCmd() error {
 
 func generateSingleCmd(name string) error {
 	path := configdir.LocalConfig()
-	configPath := filepath.Join(path, "totpgen.json")
+	configPath := filepath.Join(path, "2fa.json")
 	cfg, err := readConfig(configPath)
 	if err != nil {
 		return err
@@ -137,7 +137,7 @@ func getEditorExecCommand() *exec.Cmd {
 
 func editCmd() error {
 	path := configdir.LocalConfig()
-	configPath := filepath.Join(path, "totpgen.json")
+	configPath := filepath.Join(path, "2fa.json")
 	editor := getEditorExecCommand()
 	editor.Args = append(editor.Args, configPath)
 

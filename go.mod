@@ -1,4 +1,4 @@
-module github.com/amirrezaask/totpgen
+module github.com/amirrezaask/2fa
 
 go 1.22.0
 
